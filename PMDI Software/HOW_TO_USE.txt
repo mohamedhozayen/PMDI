@@ -1,0 +1,57 @@
+HOW TO USE PMDI - Patient Monitor Data Import
+
+ABOUT
+This application is used to import patient's physiological data from a patient monitor to a PC
+using an X3 cable connected between a dock station to a PC
+
+Patient Monitor Type: Infinity Delta XL Draeger 
+Dock Station number(patient monitor reside on): 5206110
+	- Any dock station that has X3 is acceptable
+
+BEFORE RUN
+1. 	Make sure application's specifications are met from README (also found at the end of this file)
+2. 	If there are more than one version of Java on your PC and
+	it is confused to which one to use and not running, easiest way is to 
+	uninstall all Java versions and reinstall the required version
+3. 	Connect the X3 serial cable to PC (might need a serial port to USB converter cable) 
+	to X3 port in the docking station the patient monitor residing on
+4. 	Open the application AFTER you connect X3 cable to PC
+	
+	NOTE:
+		- If the PMDI icon started flashing red or any problem happens during recording
+			- Make sure cables are connected firmly
+			- Check storage on PC
+			- close the application and re-run it
+AT RUN
+1. 	Select the serial port from the drop menu on the left
+	- if there is only one serial port connected, it will
+	select it automatically
+2.	Click on "Open" right beside "Open Selected Port"
+3.	Click on "Start Recording"
+	- A folder is created called "Data"
+	- Imported data is being saved in a .csv file format inside the Data folder
+		DO NOT open  the CSV file while importing is in progress
+			If this happens, close the application and re-run
+		
+	- You can monitor the .csv file being recorded by looking at its size beside its name
+		Might need to set your PC view settings to "Details" 
+		- simply right click on an empty space and go to view and select "Details"	
+4. At the end of a recording session, click on "Stop Recording"
+	- Open the csv file in Data folder and check the date and time of the first recordings
+	and the last date and time of the last recording at the end of the csv file
+
+	
+
+	
+=======================================================================================
+App specifications: 
+1- Install Java SE Development Kit 8 Update 131 32 bit:
+	http://www.filepuma.com/download/java_development_kit_32bit_8.0.1310.11-14919/
+	
+2- comm.jar, win32com.dll, javax.comm.properties:
+comm.jar is placed in C:\Program Files (x86)\Java\jre1.8.0_131\lib\ext
+javax.comm.properties is placed in C:\Program Files (x86)\Java\jre1.8.0_131\lib
+win32com.dll is placed in C:\Program Files (x86)\Java\jre1.8.0_131\bin
+It should be already in REQUIREMENTS if not:
+	https://drive.google.com/drive/folders/0BzPNFkK3y-4oQTlucDFEb2tJc0k	
+	
