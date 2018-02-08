@@ -2,8 +2,11 @@
 PMDI is a software that imports patients data off a patient monitor type Draeger XDelta
 
 Author: Mohamed Hozayen, MohamedHozayen@cmail.carleton.ca
+
 Systems and Computer Engineering Department,Carleton Univeristy
+
 Supervisors: Dr. James Green, Dr. Shermeen Nizami
+
 Project: Pressure Senstive Mats Studies in the NICU at CHEO
 -----------------------------------------------------------------------------------------------------------------
 
