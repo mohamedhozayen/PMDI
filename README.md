@@ -3,7 +3,7 @@ PMDI is a software that imports patients data off a patient monitor type Draeger
 
 Author: Mohamed Hozayen, MohamedHozayen@cmail.carleton.ca
 
-Systems and Computer Engineering Department,Carleton Univeristy
+Systems and Computer Engineering Department, Carleton Univeristy
 
 Supervisors: Dr. James Green, Dr. Shermeen Nizami
 
@@ -12,6 +12,8 @@ Project: Pressure Senstive Mats Studies in the NICU at CHEO
 
 PMDI: Patient Monitor Data Import Application
 Drager XLDelta Patient Monitor is the machine used to import data from. 
+
+Note: the PMDI is still under development 
 
 The way the app works is 
 1. the user selects a serial port which the patient monitor is connected to
