@@ -27,7 +27,8 @@ public class ReadWrite implements SerialPortEventListener{
 	static byte [] msg4 = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x77, (byte) 0x1E};
 
 
-	static String filename;
+	private static String filename = "";
+
 	public static void main(String[] args) {
 
 		ReadWrite reader = new ReadWrite();
@@ -65,17 +66,26 @@ public class ReadWrite implements SerialPortEventListener{
 
 	String portUserName = "Patient Monitor App";
 
-	public void openPort(String portNumber){
+	public boolean openPort(String portNumber){
 		try {
 			portId = CommPortIdentifier.getPortIdentifier(portNumber);
 			serialPort = (SerialPort) portId.open(portUserName, 20000);
-		} catch (PortInUseException e) {System.out.println(portUserName + " is using this serial port");
-		} catch (NoSuchPortException e) {e.printStackTrace();}
-		setupPort();
+		} catch (PortInUseException e) {
+			System.out.println(portUserName + " is using this serial port");
+			return false;
+		} catch (NoSuchPortException e) {
+			e.printStackTrace();
+			return false;	
+		}
+		return setupPort();
 	}
 
 	public void closePort(){
 		serialPort.close();
+	}
+
+	public String getPortNum() {
+		return serialPort.getName();
 	}
 
 
@@ -83,7 +93,7 @@ public class ReadWrite implements SerialPortEventListener{
 		return outputStream;
 	}
 
-	public void setupPort(){
+	public boolean setupPort(){
 		//set up for serial port
 		try {
 			serialPort.setSerialPortParams(19200,
@@ -92,27 +102,35 @@ public class ReadWrite implements SerialPortEventListener{
 					SerialPort.PARITY_NONE);
 		} catch (UnsupportedCommOperationException e) {
 			//closePort();
-			System.out.println(e);}
+			System.out.println(e);
+			return false;
+		}
 		//output stream to write to serial port
 		try {
 			outputStream = serialPort.getOutputStream();
 		} catch (IOException e) {
 			//closePort();
-			System.out.println(e);}
+			System.out.println(e);
+			return false;
+		}
 		//event listener to serial port 
 		try {
 			serialPort.addEventListener(this);
 		} catch (TooManyListenersException e) {
 			//closePort();
-			System.out.println(e);}
+			System.out.println(e);
+			return false;
+		}
 		//input stream to capture serial port messages 
 		try {
 			inputStream = serialPort.getInputStream();
 		} catch (IOException e) {
 			//closePort();
-			System.out.println(e);}
+			System.out.println(e);
+			return false;
+		}
 		serialPort.notifyOnDataAvailable(true);
-
+		return true;
 	}
 
 	protected Boolean infinteLoop = true;
@@ -131,7 +149,16 @@ public class ReadWrite implements SerialPortEventListener{
 	public boolean IsException() {
 		return exception;
 	}
-	public String loopMessage(byte[] msg){
+	
+	private String shortCopy = "";
+	public String getShortCopy() {
+		return shortCopy;
+	}
+	
+	public void clearShortCopy() {
+		shortCopy = "";
+	}
+	public synchronized String loopMessage(byte[] msg){
 		filename = createTextFile().getPath();
 		String readData;
 		while(infinteLoop == true){
@@ -140,7 +167,7 @@ public class ReadWrite implements SerialPortEventListener{
 				HR.clear();
 				SpO2.clear();
 				PLs.clear();
-				
+
 				outputStream.write(msg);
 				outputStream.flush();
 
@@ -151,7 +178,7 @@ public class ReadWrite implements SerialPortEventListener{
 
 			} catch (IOException e) {
 				exception = true;//System.out.println(e);
-				}
+			}
 			try{
 				TimeUnit.SECONDS.sleep(1);
 			}catch (InterruptedException e) {
@@ -162,6 +189,7 @@ public class ReadWrite implements SerialPortEventListener{
 				readData = dumpData(buf);
 				writeTextFile(filename, readData);
 				writeTextFile(filename, "\n\n");
+				shortCopy = readData.substring(0, 80);
 				buf.clear();
 			}
 		}
@@ -169,10 +197,22 @@ public class ReadWrite implements SerialPortEventListener{
 	}
 
 
+	public String getFilepath() {
+		return filename;
+	}
 
+	private static  String path = "";
+	public String setpath(String path) {
+		this.path = path;
+		return filename;
+	}
+	
+	public String getpath() {
+		return this.path;
+	}
 	public String writeMessage(byte[] msg, int NumberofLoops){
-		filename = createTextFile().getPath();
-		String readData;
+		//filename = createTextFile().getPath();
+		String readData = "";
 		for(int i = 0; i < NumberofLoops ; i++){
 			try {
 
@@ -196,12 +236,12 @@ public class ReadWrite implements SerialPortEventListener{
 			if(!buf.isEmpty()){
 				readData = dumpData(buf);
 				ReadData = readData;//return the read data globally so it could be used in another program
-				writeTextFile(filename, readData);
-				writeTextFile(filename, "\n\n");
+				//writeTextFile(filename, readData + "\n\n");
+				//writeTextFile(filename, "\n\n");
 				buf.clear();
 			}
 		}
-		return null;
+		return readData;
 	}
 
 	public void fillBuff(ArrayList<Byte> b){
@@ -411,18 +451,34 @@ public class ReadWrite implements SerialPortEventListener{
 	}
 
 	static File file;
-	
-	public String getFilepaths(){
-		return System.getProperty("user.dir") + "\\data";
+
+	public String getdefaultpath(){
+		return System.getProperty("user.dir");
 	}
-	
+
 	private static File createTextFile(){
 		LocalDateTime now = LocalDateTime.now();
 		String date = dtf.format(now).replace('/','_').replace(' ','-').replace(':','_');
 
-		String dir = System.getProperty("user.dir");//get current paths of this project
-		new File(dir+"\\Data").mkdir();//create Data folder it doesn't exist
-		dir += "\\Data\\session_" + date +".csv";//create text file with current date/time to avoid overwriting
+		String dir ="";
+		/*
+		 * use current directory by default unless
+		 * the user specified a directory to save data at
+		 * by using setFilepath
+		 */
+		if(path.equals("")) {
+			dir = System.getProperty("user.dir");//get current paths of this project
+		}else {
+			dir = path;
+		}
+
+		/*
+		 * check if filename is already a directory to a csv file
+		 * if not initialize it so
+		 */
+		new File(dir + "\\PMDI_Data").mkdir();//create Data folder it doesn't exist
+		dir += "\\PMDI_Data\\session_" + date +".csv";//create text file with current date/time to avoid overwriting
+
 
 		try {
 			file = new File(dir);
