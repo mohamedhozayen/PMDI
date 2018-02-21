@@ -25,6 +25,8 @@ import java.io.File;
 import java.util.Enumeration;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 
 public class FIXEDPMDI {
 
@@ -50,10 +52,38 @@ public class FIXEDPMDI {
 	private JScrollPane scrollPane;
 	String startmsg = " PMDI imports data from a patient monitor type:\n"
 			+ " 	Infinity Delta XL\n\n"
-			+ " To start recording select a port and open this port\n"
-			+ " Further intstructions are provided when done so\n\n";
+			+ " To start recording, select a port and open this port\n"
+			+ " Further intstructions are provided when done so\n\n"
+			+ " Note: a serial cable must be connected before the app launches\n"
+			+ " if not, connect the cable and restart the app"
+			+ "\n\n";
 	private JButton btnAbout;
 	private JButton btnCurrentDirectory;
+	private JTextField HRalarm;
+	private JPanel panel_5;
+	private JPanel panel_6;
+	private JPanel panel_7;
+	private JPanel panel_8;
+	private JPanel panel_9;
+	private JPanel panel_10;
+	private JTextField HRdisplay;
+	private JPanel panel_11;
+	private JTextField SPOalarm;
+	private JPanel panel_12;
+	private JTextField SPOdisplay;
+	private JPanel panel_13;
+	private JTextField PLsalarm;
+	private JPanel panel_14;
+	private JTextField PLsdisplay;
+	private JPanel panel_15;
+	private JTextField RRalram;
+	private JPanel panel_16;
+	private JTextField RRdisplay;
+	private JPanel panel_17;
+	private JTextField textField_8;
+	private JTextField txtSpo;
+	private JTextField txtPls;
+	private JTextField txtRr;
 
 	/**
 	 * Launch the application.
@@ -292,15 +322,284 @@ public class FIXEDPMDI {
 								.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE))
 						.addContainerGap())
 				);
+		
+		panel_5 = new JPanel();
+		panel_5.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		panel_6 = new JPanel();
+		panel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		panel_11 = new JPanel();
+		
+		SPOalarm = new JTextField();
+		SPOalarm.setText("---");
+		SPOalarm.setSelectedTextColor(Color.BLACK);
+		SPOalarm.setHorizontalAlignment(SwingConstants.CENTER);
+		SPOalarm.setFont(new Font("Tahoma", Font.BOLD, 35));
+		SPOalarm.setEnabled(false);
+		SPOalarm.setDisabledTextColor(Color.BLACK);
+		SPOalarm.setColumns(5);
+		SPOalarm.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_11.add(SPOalarm);
+		
+		panel_12 = new JPanel();
+		
+		SPOdisplay = new JTextField();
+		SPOdisplay.setText("---");
+		SPOdisplay.setSelectedTextColor(Color.BLACK);
+		SPOdisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		SPOdisplay.setFont(new Font("Tahoma", Font.BOLD, 35));
+		SPOdisplay.setEnabled(false);
+		SPOdisplay.setDisabledTextColor(Color.BLACK);
+		SPOdisplay.setColumns(5);
+		SPOdisplay.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_12.add(SPOdisplay);
+		GroupLayout gl_panel_6 = new GroupLayout(panel_6);
+		gl_panel_6.setHorizontalGroup(
+			gl_panel_6.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, gl_panel_6.createSequentialGroup()
+					.addContainerGap(30, Short.MAX_VALUE)
+					.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(12)
+					.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(21))
+		);
+		gl_panel_6.setVerticalGroup(
+			gl_panel_6.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_panel_6.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel_6.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(22, Short.MAX_VALUE))
+		);
+		panel_6.setLayout(gl_panel_6);
+		
+		panel_7 = new JPanel();
+		panel_7.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		panel_13 = new JPanel();
+		
+		PLsalarm = new JTextField();
+		PLsalarm.setText("---");
+		PLsalarm.setSelectedTextColor(Color.GREEN);
+		PLsalarm.setHorizontalAlignment(SwingConstants.CENTER);
+		PLsalarm.setFont(new Font("Tahoma", Font.BOLD, 35));
+		PLsalarm.setEnabled(false);
+		PLsalarm.setDisabledTextColor(Color.GREEN);
+		PLsalarm.setColumns(5);
+		PLsalarm.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_13.add(PLsalarm);
+		
+		panel_14 = new JPanel();
+		
+		PLsdisplay = new JTextField();
+		PLsdisplay.setText("---");
+		PLsdisplay.setSelectedTextColor(Color.GREEN);
+		PLsdisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		PLsdisplay.setFont(new Font("Tahoma", Font.BOLD, 35));
+		PLsdisplay.setEnabled(false);
+		PLsdisplay.setDisabledTextColor(Color.GREEN);
+		PLsdisplay.setColumns(5);
+		PLsdisplay.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_14.add(PLsdisplay);
+		GroupLayout gl_panel_7 = new GroupLayout(panel_7);
+		gl_panel_7.setHorizontalGroup(
+			gl_panel_7.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, gl_panel_7.createSequentialGroup()
+					.addContainerGap(30, Short.MAX_VALUE)
+					.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(12)
+					.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(21))
+		);
+		gl_panel_7.setVerticalGroup(
+			gl_panel_7.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_7.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel_7.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(22, Short.MAX_VALUE))
+		);
+		panel_7.setLayout(gl_panel_7);
+		
+		panel_8 = new JPanel();
+		panel_8.setBorder(new LineBorder(new Color(0, 0, 0)));
+		
+		panel_15 = new JPanel();
+		
+		RRalram = new JTextField();
+		RRalram.setText("---");
+		RRalram.setSelectedTextColor(Color.GREEN);
+		RRalram.setHorizontalAlignment(SwingConstants.CENTER);
+		RRalram.setFont(new Font("Tahoma", Font.BOLD, 35));
+		RRalram.setEnabled(false);
+		RRalram.setDisabledTextColor(Color.GREEN);
+		RRalram.setColumns(5);
+		RRalram.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_15.add(RRalram);
+		
+		panel_16 = new JPanel();
+		
+		RRdisplay = new JTextField();
+		RRdisplay.setText("---");
+		RRdisplay.setSelectedTextColor(Color.GREEN);
+		RRdisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		RRdisplay.setFont(new Font("Tahoma", Font.BOLD, 35));
+		RRdisplay.setEnabled(false);
+		RRdisplay.setDisabledTextColor(Color.GREEN);
+		RRdisplay.setColumns(5);
+		RRdisplay.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_16.add(RRdisplay);
+		GroupLayout gl_panel_8 = new GroupLayout(panel_8);
+		gl_panel_8.setHorizontalGroup(
+			gl_panel_8.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panel_8.createSequentialGroup()
+					.addContainerGap(30, Short.MAX_VALUE)
+					.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(12)
+					.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(21))
+		);
+		gl_panel_8.setVerticalGroup(
+			gl_panel_8.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_8.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel_8.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+		);
+		panel_8.setLayout(gl_panel_8);
+		
+		panel_17 = new JPanel();
 		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
 		gl_panel_2.setHorizontalGroup(
-				gl_panel_2.createParallelGroup(Alignment.LEADING)
-				.addGap(0, 505, Short.MAX_VALUE)
-				);
+			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_2.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(29, Short.MAX_VALUE))
+		);
 		gl_panel_2.setVerticalGroup(
-				gl_panel_2.createParallelGroup(Alignment.LEADING)
-				.addGap(0, 472, Short.MAX_VALUE)
-				);
+			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_2.createSequentialGroup()
+					.addGap(32)
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 412, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_panel_2.createSequentialGroup()
+							.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 91, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(28, Short.MAX_VALUE))
+		);
+		
+		textField_8 = new JTextField();
+		textField_8.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		textField_8.setText("HR");
+		textField_8.setEditable(false);
+		textField_8.setColumns(10);
+		
+		txtSpo = new JTextField();
+		txtSpo.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtSpo.setText("SpO2");
+		txtSpo.setEditable(false);
+		txtSpo.setColumns(10);
+		
+		txtPls = new JTextField();
+		txtPls.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtPls.setText("PLs");
+		txtPls.setEditable(false);
+		txtPls.setColumns(10);
+		
+		txtRr = new JTextField();
+		txtRr.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtRr.setText("RR");
+		txtRr.setEditable(false);
+		txtRr.setColumns(10);
+		GroupLayout gl_panel_17 = new GroupLayout(panel_17);
+		gl_panel_17.setHorizontalGroup(
+			gl_panel_17.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_17.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel_17.createParallelGroup(Alignment.LEADING)
+						.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+						.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+		);
+		gl_panel_17.setVerticalGroup(
+			gl_panel_17.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_17.createSequentialGroup()
+					.addGap(37)
+					.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(84)
+					.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+					.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(87)
+					.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(32))
+		);
+		panel_17.setLayout(gl_panel_17);
+		
+		panel_9 = new JPanel();
+		
+		panel_10 = new JPanel();
+		
+		HRdisplay = new JTextField();
+		HRdisplay.setText("---");
+		HRdisplay.setSelectedTextColor(Color.BLUE);
+		HRdisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		HRdisplay.setFont(new Font("Tahoma", Font.BOLD, 35));
+		HRdisplay.setEnabled(false);
+		HRdisplay.setDisabledTextColor(Color.BLUE);
+		HRdisplay.setColumns(5);
+		HRdisplay.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_10.add(HRdisplay);
+		GroupLayout gl_panel_5 = new GroupLayout(panel_5);
+		gl_panel_5.setHorizontalGroup(
+			gl_panel_5.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, gl_panel_5.createSequentialGroup()
+					.addContainerGap(64, Short.MAX_VALUE)
+					.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+					.addGap(21))
+		);
+		gl_panel_5.setVerticalGroup(
+			gl_panel_5.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panel_5.createSequentialGroup()
+					.addContainerGap(22, Short.MAX_VALUE)
+					.addGroup(gl_panel_5.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
+		);
+		
+		HRalarm = new JTextField();
+		panel_9.add(HRalarm);
+		HRalarm.setText("---");
+		HRalarm.setSelectedTextColor(Color.BLUE);
+		HRalarm.setHorizontalAlignment(SwingConstants.CENTER);
+		HRalarm.setFont(new Font("Tahoma", Font.BOLD, 35));
+		HRalarm.setEnabled(false);
+		HRalarm.setDisabledTextColor(Color.BLUE);
+		HRalarm.setColumns(5);
+		HRalarm.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_5.setLayout(gl_panel_5);
 		panel_2.setLayout(gl_panel_2);
 
 
