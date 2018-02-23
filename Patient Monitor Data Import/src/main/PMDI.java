@@ -125,13 +125,13 @@ public class PMDI{
 	Runnable checkThreads = new Runnable() {
 		public void run() {
 			while(true) {
-				while(loop.isAlive() && !read.IsException()){
+				while(loop.isAlive() && !read.IOException()){
 					green.setBackground(new Color(0,255,0));
 					green.setText("Exporting Data ...");
 				}
 				green.setBackground(new Color(255,255,255));
 				green.setText("not reading at the moment");
-				if(read.IsException()|| read.fileWriteException()) {
+				if(read.IOException()|| read.fileWriteException()) {
 					frmSer.setIconImage(Toolkit.getDefaultToolkit().getImage(System.getProperty("user.dir")
 							+"\\images\\red.png"));
 				}
@@ -156,7 +156,7 @@ public class PMDI{
 				try{
 					TimeUnit.SECONDS.sleep(1);
 				}catch (InterruptedException e) {e.printStackTrace();}
-				if(read.IsException()){
+				if(read.IOException()){
 					HRview.setText("---");
 					SpO2view.setText("---");
 					PLsview.setText("---");
@@ -284,6 +284,7 @@ public class PMDI{
 		txtHr.setEditable(false);
 		txtHr.setText("HR");
 		txtHr.setColumns(10);
+		
 
 
 		GroupLayout groupLayout = new GroupLayout(frmSer.getContentPane());
@@ -319,16 +320,17 @@ public class PMDI{
 								.addComponent(txtSpo, 0, 0, Short.MAX_VALUE)
 								.addComponent(txtHr, GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE))
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(SpO2view, GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-								.addComponent(PLsview, GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-								.addComponent(HRview))))
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(HRview, 119, 119, 119)
+								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+									.addComponent(SpO2view, GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+									.addComponent(PLsview, GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)))))
 					.addGap(97))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(38)
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
@@ -340,16 +342,16 @@ public class PMDI{
 								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 									.addComponent(selectSerialPort)
 									.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-							.addPreferredGap(ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
 							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 								.addComponent(lblCloseSelectedPort)
 								.addComponent(btnClose)
 								.addComponent(txtHr, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 							.addGap(51))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(180)
+							.addContainerGap()
 							.addComponent(HRview, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)))
+							.addGap(70)))
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(msg, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
 						.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -449,7 +451,7 @@ public class PMDI{
 				new Thread(checkThreads).start();
 
 				JOptionPane.showMessageDialog(null, "Exported data is being saved at \n"
-						+read.getFilepaths());
+						+read.getdefaultpath());
 			}
 		});
 

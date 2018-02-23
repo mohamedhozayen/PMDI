@@ -22,6 +22,7 @@ import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -30,7 +31,7 @@ import javax.swing.border.LineBorder;
 
 public class FIXEDPMDI {
 
-	private static ReadWrite read = new ReadWrite();
+	private ReadWrite read = new ReadWrite();
 	private JFrame frame;
 	private JPanel panel_2;
 	private JPanel panel_1;
@@ -47,6 +48,8 @@ public class FIXEDPMDI {
 	private JButton btnClear;
 	private Thread mainThread;
 	private Thread viewThread;
+	private Thread displayThread;
+	private Thread verifyThread;
 
 	private static byte [] msg = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x77, (byte) 0x1E};
 	private JScrollPane scrollPane;
@@ -84,6 +87,7 @@ public class FIXEDPMDI {
 	private JTextField txtSpo;
 	private JTextField txtPls;
 	private JTextField txtRr;
+	private JButton btnRefresh;
 
 	/**
 	 * Launch the application.
@@ -127,10 +131,11 @@ public class FIXEDPMDI {
 						btnSelectDirectory.setEnabled(true);
 						btnCurrentDirectory.setEnabled(true);
 						btnStartRecording.setEnabled(true);
-						btnTestConnection.setEnabled(true); 
+						btnTestConnection.setEnabled(true);
+						btnRefresh.setEnabled(false);
 						BtnOpenPort.setText("Close Port");
 					}else {
-						textArea.append(sel + "\n open failed");
+						textArea.append(sel + "\n open failed \n");
 					}
 				}else {//close port
 					read.loopControl(false);
@@ -139,7 +144,8 @@ public class FIXEDPMDI {
 					btnSelectDirectory.setEnabled(false);
 					btnCurrentDirectory.setEnabled(false);
 					btnStartRecording.setEnabled(false);
-					btnTestConnection.setEnabled(false); 
+					btnTestConnection.setEnabled(false);
+					btnRefresh.setEnabled(true);
 					BtnOpenPort.setText("Open Port");
 					textArea.append("\n\n" + read.getPortNum() + " close success\n");
 				}
@@ -148,7 +154,6 @@ public class FIXEDPMDI {
 		});
 
 		btnTestConnection.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
 				String s = read.writeMessage(msg, 1);
 				if(s.equals("")) {//test failed
@@ -174,8 +179,10 @@ public class FIXEDPMDI {
 				if(returnVal == JFileChooser.APPROVE_OPTION) {
 					s = chooser.getSelectedFile().getPath();
 				}
-				read.setpath(s);
-				textArea.append("\n\nThe selected directory is\n" + s);
+				if(!s.equals("")) {
+					read.setpath(s);
+					textArea.append("\n\nThe selected directory is\n" + s);
+				}
 			}
 		});
 
@@ -185,6 +192,8 @@ public class FIXEDPMDI {
 				if(btnStartRecording.getText() == "Start Recording") {
 					btnSelectDirectory.setEnabled(false);
 					btnTestConnection.setEnabled(false);
+					BtnOpenPort.setEnabled(false);
+					btnRefresh.setEnabled(false);
 					read.loopControl(true);
 					mainThread = new Thread(new Runnable() {
 						public void run() {
@@ -206,16 +215,57 @@ public class FIXEDPMDI {
 							}
 						}
 					});
-					textArea.setText("");
+
+					displayThread = new Thread(new Runnable(){
+						public void run() {
+							while(mainThread.isAlive()) {
+								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
+								HRdisplay.setText(read.decodeHR());
+								SPOdisplay.setText(read.decodeSpO2());
+								PLsdisplay.setText(read.decodePLs());
+								RRdisplay.setText(read.decodeRR());
+							}
+							if(!mainThread.isAlive()) {
+								HRdisplay.setText("---");
+								SPOdisplay.setText("---");
+								PLsdisplay.setText("---");
+								RRdisplay.setText("---");
+							}
+						}
+					});
+
+					verifyThread= new Thread(new Runnable(){
+						public void run() {
+							while(mainThread.isAlive()) {
+								while(read.IOException()|| read.fileWriteException()) {
+									frame.setIconImage(Toolkit.getDefaultToolkit().getImage(System.getProperty("user.dir")
+											+"\\images\\red.png"));
+									try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();}
+									frame.setIconImage(Toolkit.getDefaultToolkit().getImage(System.getProperty("user.dir")
+											+"\\images\\PMDI_Icon_colour.png"));
+									try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();}
+								}	
+							}
+						}
+					});
+
+					textArea.setText("...\n");
 					mainThread.start();
 					viewThread.start();
+					displayThread.start();
+					verifyThread.start();
 					btnStartRecording.setText("Stop Recording");
 				}else {//stop recording
+					read.loopControl(false);
+					while(viewThread.isAlive()) {
+						//wait to finish
+					}
 					btnSelectDirectory.setEnabled(true);
 					btnTestConnection.setEnabled(true);
-					read.loopControl(false);
+					BtnOpenPort.setEnabled(true);
+					btnRefresh.setEnabled(true);
 					btnStartRecording.setText("Start Recording");
-					textArea.append("Data is saved at " + read.getFilepath() +"\n");
+					textArea.append("\nData is saved at " + read.getFilepath() +"\n");
 				}
 			}
 		});
@@ -234,10 +284,10 @@ public class FIXEDPMDI {
 		btnCurrentDirectory.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(read.getpath().equals("")) {
-					textArea.append("\n\nNo directory selected, the dedault one is\n"
+					textArea.append("\n\nNo directory selected, the dedault one is\n\n"
 							+ read.getdefaultpath());
 
-					textArea.append("\nData will be saved in a PMDI_Data folder when recording starts");
+					textArea.append("\n\nData will be saved in a PMDI_Data folder when recording starts");
 					textArea.append("\nPress Select Directory if you wish to change the default one\n");
 				}else {
 					textArea.append("\n\n" + read.getpath());
@@ -248,6 +298,28 @@ public class FIXEDPMDI {
 					}
 
 				}
+			}
+		});
+
+		btnRefresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RuntimeExec exec = new RuntimeExec();
+				ArrayList<String> ls = exec.parseCOM(exec.action());
+				comboBox.removeAllItems();
+				comboBox.addItem("select");
+				for(String s : ls) {
+					comboBox.addItem(s);
+				}
+				if(comboBox.getItemCount()==1){
+					comboBox.removeItemAt(0);
+					comboBox.addItem("No serial port detected");
+				}else {
+					BtnOpenPort.setEnabled(true);
+				}
+				if(comboBox.getItemCount() == 2){
+					comboBox.setSelectedIndex(1);
+				}
+
 			}
 		});
 	}
@@ -322,15 +394,15 @@ public class FIXEDPMDI {
 								.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE))
 						.addContainerGap())
 				);
-		
+
 		panel_5 = new JPanel();
 		panel_5.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
+
 		panel_6 = new JPanel();
 		panel_6.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
+
 		panel_11 = new JPanel();
-		
+
 		SPOalarm = new JTextField();
 		SPOalarm.setText("---");
 		SPOalarm.setSelectedTextColor(Color.BLACK);
@@ -341,9 +413,9 @@ public class FIXEDPMDI {
 		SPOalarm.setColumns(5);
 		SPOalarm.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		panel_11.add(SPOalarm);
-		
+
 		panel_12 = new JPanel();
-		
+
 		SPOdisplay = new JTextField();
 		SPOdisplay.setText("---");
 		SPOdisplay.setSelectedTextColor(Color.BLACK);
@@ -356,30 +428,30 @@ public class FIXEDPMDI {
 		panel_12.add(SPOdisplay);
 		GroupLayout gl_panel_6 = new GroupLayout(panel_6);
 		gl_panel_6.setHorizontalGroup(
-			gl_panel_6.createParallelGroup(Alignment.LEADING)
+				gl_panel_6.createParallelGroup(Alignment.LEADING)
 				.addGroup(Alignment.TRAILING, gl_panel_6.createSequentialGroup()
-					.addContainerGap(30, Short.MAX_VALUE)
-					.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(12)
-					.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(21))
-		);
+						.addContainerGap(30, Short.MAX_VALUE)
+						.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(12)
+						.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(21))
+				);
 		gl_panel_6.setVerticalGroup(
-			gl_panel_6.createParallelGroup(Alignment.TRAILING)
+				gl_panel_6.createParallelGroup(Alignment.TRAILING)
 				.addGroup(Alignment.LEADING, gl_panel_6.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_panel_6.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(22, Short.MAX_VALUE))
-		);
+						.addContainerGap()
+						.addGroup(gl_panel_6.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_12, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_11, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap(22, Short.MAX_VALUE))
+				);
 		panel_6.setLayout(gl_panel_6);
-		
+
 		panel_7 = new JPanel();
 		panel_7.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
+
 		panel_13 = new JPanel();
-		
+
 		PLsalarm = new JTextField();
 		PLsalarm.setText("---");
 		PLsalarm.setSelectedTextColor(Color.GREEN);
@@ -390,9 +462,9 @@ public class FIXEDPMDI {
 		PLsalarm.setColumns(5);
 		PLsalarm.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		panel_13.add(PLsalarm);
-		
+
 		panel_14 = new JPanel();
-		
+
 		PLsdisplay = new JTextField();
 		PLsdisplay.setText("---");
 		PLsdisplay.setSelectedTextColor(Color.GREEN);
@@ -405,30 +477,30 @@ public class FIXEDPMDI {
 		panel_14.add(PLsdisplay);
 		GroupLayout gl_panel_7 = new GroupLayout(panel_7);
 		gl_panel_7.setHorizontalGroup(
-			gl_panel_7.createParallelGroup(Alignment.LEADING)
+				gl_panel_7.createParallelGroup(Alignment.LEADING)
 				.addGroup(Alignment.TRAILING, gl_panel_7.createSequentialGroup()
-					.addContainerGap(30, Short.MAX_VALUE)
-					.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(12)
-					.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(21))
-		);
+						.addContainerGap(30, Short.MAX_VALUE)
+						.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(12)
+						.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(21))
+				);
 		gl_panel_7.setVerticalGroup(
-			gl_panel_7.createParallelGroup(Alignment.LEADING)
+				gl_panel_7.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_7.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_panel_7.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(22, Short.MAX_VALUE))
-		);
+						.addContainerGap()
+						.addGroup(gl_panel_7.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_14, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_13, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap(22, Short.MAX_VALUE))
+				);
 		panel_7.setLayout(gl_panel_7);
-		
+
 		panel_8 = new JPanel();
 		panel_8.setBorder(new LineBorder(new Color(0, 0, 0)));
-		
+
 		panel_15 = new JPanel();
-		
+
 		RRalram = new JTextField();
 		RRalram.setText("---");
 		RRalram.setSelectedTextColor(Color.GREEN);
@@ -439,9 +511,9 @@ public class FIXEDPMDI {
 		RRalram.setColumns(5);
 		RRalram.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		panel_15.add(RRalram);
-		
+
 		panel_16 = new JPanel();
-		
+
 		RRdisplay = new JTextField();
 		RRdisplay.setText("---");
 		RRdisplay.setSelectedTextColor(Color.GREEN);
@@ -454,75 +526,75 @@ public class FIXEDPMDI {
 		panel_16.add(RRdisplay);
 		GroupLayout gl_panel_8 = new GroupLayout(panel_8);
 		gl_panel_8.setHorizontalGroup(
-			gl_panel_8.createParallelGroup(Alignment.TRAILING)
+				gl_panel_8.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_panel_8.createSequentialGroup()
-					.addContainerGap(30, Short.MAX_VALUE)
-					.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(12)
-					.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(21))
-		);
+						.addContainerGap(30, Short.MAX_VALUE)
+						.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(12)
+						.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(21))
+				);
 		gl_panel_8.setVerticalGroup(
-			gl_panel_8.createParallelGroup(Alignment.LEADING)
+				gl_panel_8.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_8.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_panel_8.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-		);
+						.addContainerGap()
+						.addGroup(gl_panel_8.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_16, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_15, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+				);
 		panel_8.setLayout(gl_panel_8);
-		
+
 		panel_17 = new JPanel();
 		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
 		gl_panel_2.setHorizontalGroup(
-			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(29, Short.MAX_VALUE))
-		);
+						.addContainerGap()
+						.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap(29, Short.MAX_VALUE))
+				);
 		gl_panel_2.setVerticalGroup(
-			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
-					.addGap(32)
-					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 412, GroupLayout.PREFERRED_SIZE)
-						.addGroup(gl_panel_2.createSequentialGroup()
-							.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 91, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(28, Short.MAX_VALUE))
-		);
-		
+						.addGap(32)
+						.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_17, GroupLayout.PREFERRED_SIZE, 412, GroupLayout.PREFERRED_SIZE)
+								.addGroup(gl_panel_2.createSequentialGroup()
+										.addComponent(panel_5, GroupLayout.PREFERRED_SIZE, 94, GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(ComponentPlacement.UNRELATED)
+										.addComponent(panel_6, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+										.addGap(18)
+										.addComponent(panel_7, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+										.addGap(18)
+										.addComponent(panel_8, GroupLayout.PREFERRED_SIZE, 91, GroupLayout.PREFERRED_SIZE)))
+						.addContainerGap(28, Short.MAX_VALUE))
+				);
+
 		textField_8 = new JTextField();
 		textField_8.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		textField_8.setText("HR");
 		textField_8.setEditable(false);
 		textField_8.setColumns(10);
-		
+
 		txtSpo = new JTextField();
 		txtSpo.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		txtSpo.setText("SpO2");
 		txtSpo.setEditable(false);
 		txtSpo.setColumns(10);
-		
+
 		txtPls = new JTextField();
 		txtPls.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		txtPls.setText("PLs");
 		txtPls.setEditable(false);
 		txtPls.setColumns(10);
-		
+
 		txtRr = new JTextField();
 		txtRr.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		txtRr.setText("RR");
@@ -530,35 +602,35 @@ public class FIXEDPMDI {
 		txtRr.setColumns(10);
 		GroupLayout gl_panel_17 = new GroupLayout(panel_17);
 		gl_panel_17.setHorizontalGroup(
-			gl_panel_17.createParallelGroup(Alignment.LEADING)
+				gl_panel_17.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_17.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_panel_17.createParallelGroup(Alignment.LEADING)
-						.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
-						.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-		);
+						.addContainerGap()
+						.addGroup(gl_panel_17.createParallelGroup(Alignment.LEADING)
+								.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+								.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+								.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+								.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+				);
 		gl_panel_17.setVerticalGroup(
-			gl_panel_17.createParallelGroup(Alignment.LEADING)
+				gl_panel_17.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_17.createSequentialGroup()
-					.addGap(37)
-					.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(84)
-					.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
-					.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(87)
-					.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(32))
-		);
+						.addGap(37)
+						.addComponent(textField_8, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addGap(84)
+						.addComponent(txtSpo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+						.addComponent(txtPls, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addGap(87)
+						.addComponent(txtRr, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addGap(32))
+				);
 		panel_17.setLayout(gl_panel_17);
-		
+
 		panel_9 = new JPanel();
-		
+
 		panel_10 = new JPanel();
-		
+
 		HRdisplay = new JTextField();
 		HRdisplay.setText("---");
 		HRdisplay.setSelectedTextColor(Color.BLUE);
@@ -571,24 +643,24 @@ public class FIXEDPMDI {
 		panel_10.add(HRdisplay);
 		GroupLayout gl_panel_5 = new GroupLayout(panel_5);
 		gl_panel_5.setHorizontalGroup(
-			gl_panel_5.createParallelGroup(Alignment.LEADING)
+				gl_panel_5.createParallelGroup(Alignment.LEADING)
 				.addGroup(Alignment.TRAILING, gl_panel_5.createSequentialGroup()
-					.addContainerGap(64, Short.MAX_VALUE)
-					.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
-					.addGap(21))
-		);
+						.addContainerGap(64, Short.MAX_VALUE)
+						.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.UNRELATED)
+						.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addGap(21))
+				);
 		gl_panel_5.setVerticalGroup(
-			gl_panel_5.createParallelGroup(Alignment.TRAILING)
+				gl_panel_5.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_panel_5.createSequentialGroup()
-					.addContainerGap(22, Short.MAX_VALUE)
-					.addGroup(gl_panel_5.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap())
-		);
-		
+						.addContainerGap(22, Short.MAX_VALUE)
+						.addGroup(gl_panel_5.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel_10, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+								.addComponent(panel_9, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
+						.addContainerGap())
+				);
+
 		HRalarm = new JTextField();
 		panel_9.add(HRalarm);
 		HRalarm.setText("---");
@@ -720,6 +792,10 @@ public class FIXEDPMDI {
 
 		comboBox = new JComboBox<String>();
 
+		btnRefresh = new JButton("Refresh");
+
+		btnRefresh.setEnabled(true);
+
 
 		GroupLayout gl_panel_3 = new GroupLayout(panel_3);
 		gl_panel_3.setHorizontalGroup(
@@ -727,14 +803,13 @@ public class FIXEDPMDI {
 				.addGroup(gl_panel_3.createSequentialGroup()
 						.addContainerGap()
 						.addGroup(gl_panel_3.createParallelGroup(Alignment.LEADING)
-								.addGroup(gl_panel_3.createSequentialGroup()
-										.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 189, GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
-										.addComponent(btnTestConnection, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
-										.addGap(38))
-								.addGroup(gl_panel_3.createSequentialGroup()
-										.addComponent(BtnOpenPort, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
-										.addContainerGap(309, Short.MAX_VALUE))))
+								.addComponent(BtnOpenPort, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
+								.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 189, GroupLayout.PREFERRED_SIZE))
+						.addPreferredGap(ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+						.addGroup(gl_panel_3.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnRefresh, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnTestConnection, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE))
+						.addGap(39))
 				);
 		gl_panel_3.setVerticalGroup(
 				gl_panel_3.createParallelGroup(Alignment.LEADING)
@@ -742,9 +817,11 @@ public class FIXEDPMDI {
 						.addContainerGap()
 						.addGroup(gl_panel_3.createParallelGroup(Alignment.BASELINE)
 								.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnTestConnection, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
+								.addComponent(btnRefresh, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
 						.addGap(28)
-						.addComponent(BtnOpenPort, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_panel_3.createParallelGroup(Alignment.BASELINE)
+								.addComponent(BtnOpenPort, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnTestConnection, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
 						.addContainerGap(35, Short.MAX_VALUE))
 				);
 		panel_3.setLayout(gl_panel_3);

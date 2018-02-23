@@ -382,6 +382,19 @@ public class ParsePMDI {
 	
 	public static void main(String[] args){
 
+		ParsePMDI parser = new ParsePMDI();
+
+		String fileReadPath = "C:\\Users\\Mohamed Hozayen\\Downloads\\session_2018_01_30-13_47_20_subject1.csv";
+
+		String fileReadName = new File(fileReadPath).getName();;
+		parser.setFileWrite(parser.createTextFile(fileReadName).getPath());
+		try {
+			parser.read(fileReadPath);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		//short - C:\\session_2017_08_29-4_11_03.csv
 		//long - C:\\session_2017_08_03-17_27_04.csv
 		//C:\\session_2017_08_16-18_36_24.csv

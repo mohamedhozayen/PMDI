@@ -32,10 +32,11 @@ public class ReadWrite implements SerialPortEventListener{
 	public static void main(String[] args) {
 
 		ReadWrite reader = new ReadWrite();
-		reader.avialableSerialPorts(portIdList);
-		reader.openPort("COM7");
-		filename = createTextFile().getPath(); //-> included in write methods
-		reader.writeMessage(msg4, 5);
+		//reader.avialableSerialPorts(portIdList);
+		reader.openPort("COM3");
+		//filename = createTextFile().getPath(); //-> included in write methods
+		reader.clearAllList();
+		reader.writeMessage(msg4, 20);
 		reader.closePort();
 	}//end main
 
@@ -145,16 +146,16 @@ public class ReadWrite implements SerialPortEventListener{
 
 	private String ReadData = new String("");
 
-	private boolean exception = false;
-	public boolean IsException() {
-		return exception;
+	private boolean IOexception = false;
+	public boolean IOException() {
+		return IOexception;
 	}
-	
+
 	private String shortCopy = "";
 	public String getShortCopy() {
 		return shortCopy;
 	}
-	
+
 	public void clearShortCopy() {
 		shortCopy = "";
 	}
@@ -164,20 +165,17 @@ public class ReadWrite implements SerialPortEventListener{
 		while(infinteLoop == true){
 			try {
 
-				HR.clear();
-				SpO2.clear();
-				PLs.clear();
+				clearAllList();
 
 				outputStream.write(msg);
 				outputStream.flush();
-
 				LocalDateTime now = LocalDateTime.now();
 				//System.out.print(dtf.format(now));
 				//System.out.print(" Written data: ");
 				//System.out.println();
-
+				IOexception = false;
 			} catch (IOException e) {
-				exception = true;//System.out.println(e);
+				IOexception = true;//System.out.println(e);
 			}
 			try{
 				TimeUnit.SECONDS.sleep(1);
@@ -206,7 +204,7 @@ public class ReadWrite implements SerialPortEventListener{
 		this.path = path;
 		return filename;
 	}
-	
+
 	public String getpath() {
 		return this.path;
 	}
@@ -220,12 +218,14 @@ public class ReadWrite implements SerialPortEventListener{
 				outputStream.flush();
 
 				LocalDateTime now = LocalDateTime.now();
-				//System.out.print(dtf.format(now));
-				//System.out.print(" Written data: ");
+				//System.out.println(dtf.format(now));
+				//System.out.print(System.currentTimeMillis());
+				//System.out.println(" Written data: ");
 				//System.out.println();
 
 			} catch (IOException e) {
 				//closePort();
+
 				System.out.println(e);}
 			try{
 				TimeUnit.SECONDS.sleep(1);
@@ -259,9 +259,17 @@ public class ReadWrite implements SerialPortEventListener{
 		return true;
 	}
 
+
 	public String decodeHR(){
 		String val = "";
-		for(int i = 0; i < HR.size(); i++){
+		int index = 0;
+		if(HR.size() < 8) {
+			index = HR.size();
+		}else {
+			index = 8;
+		}
+
+		for(int i = 0; i < index; i++){
 			if(isNumber(HR.get(i))){
 				if(Integer.parseInt(HR.get(i)) >= 30 
 						&& Integer.parseInt(HR.get(i)) <= 39){
@@ -280,9 +288,42 @@ public class ReadWrite implements SerialPortEventListener{
 		HR.clear();
 		return val;
 	}
+	public String decodeRR(){
+		String val = "";
+		int index = 0;
+		if(RR.size() < 8) {
+			index = RR.size();
+		}else {
+			index = 8;
+		}
+		for(int i = 0; i < index; i++){
+			if(isNumber(RR.get(i))){
+				if(Integer.parseInt(RR.get(i)) >= 30 
+						&& Integer.parseInt(RR.get(i)) <= 39){
+					val += (Integer.parseInt(RR.get(i))-30);
+				}else if(Integer.parseInt(RR.get(i)) == 12){//unkown value
+					val = "---";
+					return val;
+				}else{
+					continue;
+				}
+			}
+		}
+		if(val.compareTo("")==0){
+			val = "---";
+		}
+		RR.clear();
+		return val;
+	}
 	public String decodeSpO2(){
 		String val = "";
-		for(int i = 0; i < SpO2.size(); i++){
+		int index = 0;
+		if(SpO2.size() < 8) {
+			index = SpO2.size();
+		}else {
+			index = 8;
+		}
+		for(int i = 0; i < index; i++){
 			if(isNumber(SpO2.get(i))){
 				if(Integer.parseInt(SpO2.get(i)) >= 30 
 						&& Integer.parseInt(SpO2.get(i)) <= 39){
@@ -303,7 +344,13 @@ public class ReadWrite implements SerialPortEventListener{
 	}
 	public String decodePLs(){
 		String val = "";
-		for(int i = 0; i < PLs.size(); i++){
+		int index = 0;
+		if(PLs.size() < 8) {
+			index = PLs.size();
+		}else {
+			index = 8;
+		}
+		for(int i = 0; i < index; i++){
 			if(isNumber(PLs.get(i))){
 				if(Integer.parseInt(PLs.get(i)) >= 30 
 						&& Integer.parseInt(PLs.get(i)) <= 39){
@@ -322,15 +369,23 @@ public class ReadWrite implements SerialPortEventListener{
 		PLs.clear();
 		return val;
 	}
+	public void clearAllList() {
+		HR.clear();
+		SpO2.clear();
+		PLs.clear();
+		RR.clear();
+	}
 	private static ArrayList<String> HR = new ArrayList<>();
 	private static ArrayList<String> SpO2 = new ArrayList<>();
 	private static ArrayList<String> PLs = new ArrayList<>();
+	private static ArrayList<String> RR = new ArrayList<>();
 	int byteCtr = 0;
 	int SpO2Ctr = 0;
 	int PLsCtr = 0;
+	int RRCtr = 0;
 	boolean SpO2Fnd = false;
 	boolean PLsFnd = false;
-
+	boolean RRFnd = false;
 	public void serialEvent(SerialPortEvent event) {
 		switch(event.getEventType()) {
 		case SerialPortEvent.BI:
@@ -357,7 +412,8 @@ public class ReadWrite implements SerialPortEventListener{
 						PLsFnd = false;
 						//String h = String.format("0x%02X", b);
 						//LocalDateTime now = LocalDateTime.now();
-						//System.out.println(dtf.format(now) + "\n");
+						//System.out.print(System.currentTimeMillis() + " ");
+						//System.out.println(dtf.format(now) + " reading");
 					}
 					buf.add(b);
 					byteCtr++;
@@ -367,6 +423,21 @@ public class ReadWrite implements SerialPortEventListener{
 						String temp = String.format("0x%02X", b).replaceAll("0x", "");
 						HR.add(temp);
 						//System.out.println(temp);
+					}
+					//RR
+					if(b == (byte)0x60 || RRCtr != 0){
+						if(RRFnd == false){
+							if(SpO2Ctr < 6){
+								String temp = String.format("0x%02X", b).replaceAll("0x", "");
+								//System.out.println(temp);
+								RR.add(temp);
+								RRCtr++;
+								//print(SpO2);			
+							}else{
+								RRFnd = true;
+								//print(SpO2);		
+							}
+						}
 					}
 					//SpO2
 					if(b == (byte)0x64 || SpO2Ctr != 0){
@@ -398,9 +469,16 @@ public class ReadWrite implements SerialPortEventListener{
 						}
 					}
 				}
+				//print(HR);
+				//print(SpO2);
+				//print(PLs);
+				//print(RR);
+				//clearAllList();
 			} catch (IOException e) {
 				//closePort();
+				IOexception = true;
 				System.out.println(e);}
+			IOexception = false;
 			break;
 		}//end switch
 	}//end serialEvent
@@ -502,12 +580,13 @@ public class ReadWrite implements SerialPortEventListener{
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dir, true))) {
 			bw.write(text);
 			//System.out.println("Done");
-			return true;
-
 		} catch (IOException e) {
 			wrtFileExpn = true;
-			e.printStackTrace();}
-		return false;
+			e.printStackTrace();
+			return false;
+		}
+		wrtFileExpn = false;
+		return true;
 	}
 
 	public String getReadData() {
