@@ -159,12 +159,17 @@ public class ReadWrite implements SerialPortEventListener{
 	public void clearShortCopy() {
 		shortCopy = "";
 	}
-	public synchronized String loopMessage(byte[] msg){
+	public String loopMessage(byte[] msg){
 		filename = createTextFile().getPath();
 		String readData;
 		while(infinteLoop == true){
 			try {
 
+				decodeHR();
+				decodeSpO2();
+				decodePLs();
+				decodeRR();
+				
 				clearAllList();
 
 				outputStream.write(msg);
@@ -260,7 +265,25 @@ public class ReadWrite implements SerialPortEventListener{
 	}
 
 
-	public String decodeHR(){
+	private String curHR;
+	private String curRR;
+	private String curSPO2;
+	private String curPLs;
+	
+	public String getHR() {
+		return curHR;
+	}
+	public String getPLs() {
+		return curPLs;
+	}
+	public String getSPO2() {
+		return curSPO2;
+	}
+	public String getRR() {
+		return curRR;
+	}
+	
+	public void decodeHR(){
 		String val = "";
 		int index = 0;
 		if(HR.size() < 8) {
@@ -276,7 +299,8 @@ public class ReadWrite implements SerialPortEventListener{
 					val += (Integer.parseInt(HR.get(i))-30);
 				}else if(Integer.parseInt(HR.get(i)) == 12){//unkown value
 					val = "---";
-					return val;
+					curHR = val;
+					return;
 				}else{
 					continue;
 				}
@@ -286,9 +310,9 @@ public class ReadWrite implements SerialPortEventListener{
 			val = "---";
 		}
 		HR.clear();
-		return val;
+		curHR = val;
 	}
-	public String decodeRR(){
+	public void decodeRR(){
 		String val = "";
 		int index = 0;
 		if(RR.size() < 8) {
@@ -303,7 +327,8 @@ public class ReadWrite implements SerialPortEventListener{
 					val += (Integer.parseInt(RR.get(i))-30);
 				}else if(Integer.parseInt(RR.get(i)) == 12){//unkown value
 					val = "---";
-					return val;
+					curRR = val;
+					return;
 				}else{
 					continue;
 				}
@@ -313,9 +338,9 @@ public class ReadWrite implements SerialPortEventListener{
 			val = "---";
 		}
 		RR.clear();
-		return val;
+		curRR = val;
 	}
-	public String decodeSpO2(){
+	public void decodeSpO2(){
 		String val = "";
 		int index = 0;
 		if(SpO2.size() < 8) {
@@ -330,7 +355,8 @@ public class ReadWrite implements SerialPortEventListener{
 					val += (Integer.parseInt(SpO2.get(i))-30);
 				}else if(Integer.parseInt(SpO2.get(i)) == 12){//unkown value
 					val = "---";
-					return val;
+					curSPO2 = val;
+					return;
 				}else{
 					continue;
 				}
@@ -340,9 +366,9 @@ public class ReadWrite implements SerialPortEventListener{
 			val = "---";
 		}
 		SpO2.clear();
-		return val;
+		curSPO2 = val;
 	}
-	public String decodePLs(){
+	public void decodePLs(){
 		String val = "";
 		int index = 0;
 		if(PLs.size() < 8) {
@@ -357,7 +383,8 @@ public class ReadWrite implements SerialPortEventListener{
 					val += (Integer.parseInt(PLs.get(i))-30);
 				}else if(Integer.parseInt(PLs.get(i)) == 12){//unkown value
 					val = "---";
-					return val;
+					curPLs = val;
+					return;
 				}else{
 					continue;
 				}
@@ -367,7 +394,7 @@ public class ReadWrite implements SerialPortEventListener{
 			val = "---";
 		}
 		PLs.clear();
-		return val;
+		curPLs = val;
 	}
 	public void clearAllList() {
 		HR.clear();

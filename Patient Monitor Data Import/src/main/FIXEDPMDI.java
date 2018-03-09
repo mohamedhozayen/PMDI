@@ -220,10 +220,10 @@ public class FIXEDPMDI {
 						public void run() {
 							while(mainThread.isAlive()) {
 								try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
-								HRdisplay.setText(read.decodeHR());
-								SPOdisplay.setText(read.decodeSpO2());
-								PLsdisplay.setText(read.decodePLs());
-								RRdisplay.setText(read.decodeRR());
+								HRdisplay.setText(read.getHR());
+								SPOdisplay.setText(read.getSPO2());
+								PLsdisplay.setText(read.getPLs());
+								RRdisplay.setText(read.getRR());
 							}
 							if(!mainThread.isAlive()) {
 								HRdisplay.setText("---");
