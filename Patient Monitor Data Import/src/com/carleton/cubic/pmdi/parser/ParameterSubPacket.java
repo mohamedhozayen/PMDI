@@ -1,17 +1,28 @@
 package com.carleton.cubic.pmdi.parser;
 
 
+import java.io.UnsupportedEncodingException;
+
 public class ParameterSubPacket {
     private String code;
     private String status;
-    private String asciiValue;
+    private byte[] value;
 
-    public String getAsciiValue() {
-        return asciiValue;
+    public void setValue(byte[] valueBytes)
+    {
+        this.value = valueBytes;
     }
 
-    public void setAsciiValue(String asciiValue) {
-        this.asciiValue = asciiValue;
+    public String getAsciiValue() {
+        String asciiString = null;
+        try {
+            asciiString = new String(value, "UTF-8");
+            asciiString = asciiString.trim();
+        } catch (UnsupportedEncodingException e) {
+            //TODO:
+            e.printStackTrace();
+        }
+        return asciiString;
     }
 
     public String getStatus() {

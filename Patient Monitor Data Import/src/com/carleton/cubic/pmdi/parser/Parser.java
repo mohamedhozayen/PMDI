@@ -25,8 +25,9 @@ public class Parser {
 
         subPacket.setStatus(subPacketBytes.get(statusByteIndex));
 
-        List<String> valueBytes = subPacketBytes.subList(statusByteIndex + 1, subPacketBytes.size());
-        subPacket.setAsciiValue(hexByteStrListToAsciiString(valueBytes));
+        List<String> valueByteStrList = subPacketBytes.subList(statusByteIndex + 1, subPacketBytes.size());
+        byte[] valueBytes = decodeHexByteStrList(valueByteStrList);
+        subPacket.setValue(valueBytes);
 
         return subPacket;
     }
@@ -142,16 +143,16 @@ public class Parser {
 
     }
 
-    private static String hexByteStrListToAsciiString(List<String> byteStrList)
+    private static byte[] decodeHexByteStrList(List<String> byteStrList)
     {
-        StringBuilder valueStringBuilder = new StringBuilder();
-        for(String b: byteStrList)
+        byte[] bytes = new byte[byteStrList.size()];
+        for(int i=0; i<byteStrList.size(); i++)
         {
-            int decimal = Integer.parseInt(b.substring(2), 16); // Trims the 0x part and concerts to hexadecimal
-            valueStringBuilder.append((char)decimal); // Append as ascii character
+            String b = byteStrList.get(i);
+            int decimal = Integer.parseInt(b.substring(2), 16);
+            bytes[i] = (byte)decimal;
         }
-
-        return valueStringBuilder.toString();
+        return bytes;
     }
 
     public static void main(String[] args){
