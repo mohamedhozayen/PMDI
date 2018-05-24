@@ -14,6 +14,7 @@ public class ParameterPacket {
         result.put("0x6400", "SPO2");
         result.put("0x6500", "PLS");
         result.put("0x9600", "ETCO2");
+        result.put("0x6600", "RRC");
         return Collections.unmodifiableMap(result);
     }
 
@@ -55,7 +56,12 @@ public class ParameterPacket {
         List<String> sortedLabels = getSupportedLabels();
         for(String label:sortedLabels)
         {
-            values.add(parameterLabelValueMap.get(label).getAsciiValue());
+            ParameterSubPacket p = parameterLabelValueMap.get(label);
+            if(p != null) {
+                values.add(parameterLabelValueMap.get(label).getAsciiValue());
+            }else {
+                values.add("N/A");
+            }
         }
         return values;
     }
