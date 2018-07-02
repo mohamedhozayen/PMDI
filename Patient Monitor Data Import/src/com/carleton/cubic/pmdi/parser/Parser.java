@@ -33,64 +33,72 @@ public class Parser {
     }
 
 
-    public static ParameterPacket parseSinglePacket(List<String> packetBytes, String requestTimeStr) {
+    public static ParameterResponse parseSingleParameterResponse(List<String> messageBytes, String requestTimeStr) {
 
 
-        int packetLength = Integer.decode(packetBytes.get(2) + packetBytes.get(1).substring(2));
-        if(packetLength != packetBytes.size() - 3) // Length excludes sync byte and the length bytes
+        int packetLength = Integer.decode(messageBytes.get(2) + messageBytes.get(1).substring(2));
+        if(packetLength != messageBytes.size() - 3) // Length excludes sync byte and the length bytes
         {
             return null;
         }
         //TODO: Should checksum be validated
 
-        ParameterPacket packet = new ParameterPacket();
-        packet.setRequestTime(requestTimeStr);
+        ParameterResponse parameterResponse = new ParameterResponse();
+        parameterResponse.setRequestTime(requestTimeStr);
 
-        String subPacketType = packetBytes.get(3);
-        String numberOfParameterSubPacketsStr = packetBytes.get(23);
+        String parameterDataMessageType = messageBytes.get(3);
+        String numberOfParameterSubPacketsStr = messageBytes.get(23);
         int numberOfParameterSubPackets = Integer.decode(numberOfParameterSubPacketsStr);
         int nextSubPacketLengthByteIndex = 24;
         for(int numSubPacket = 0; numSubPacket < numberOfParameterSubPackets; numSubPacket++)
         {
-            int lengthOfSubPacket = Integer.decode(packetBytes.get(nextSubPacketLengthByteIndex));
-            int numberOfParameters = Integer.decode(packetBytes.get(nextSubPacketLengthByteIndex + 1));
+            int lengthOfSubPacket = Integer.decode(messageBytes.get(nextSubPacketLengthByteIndex));
+            Byte numParametersByte = Byte.decode(messageBytes.get(nextSubPacketLengthByteIndex + 1));
+
+            int numberOfParameters = numParametersByte & 0x07; // Right three bits indicate the number of parameters
+            boolean hasTimeStamp = (numParametersByte & 0x08) != 0; // If third bit is set, then it has a timestamp
 
             int inSubPacketIndex = nextSubPacketLengthByteIndex + 7;
             for(int i=0; i<numberOfParameters; i++)
             {
                 List<String> subPacketBytes = new ArrayList<>();
                 inSubPacketIndex++;
-                subPacketBytes.add(packetBytes.get(inSubPacketIndex)); //Code Byte
-                if(subPacketType.equals("0x77"))
+                subPacketBytes.add(messageBytes.get(inSubPacketIndex)); //Code Byte
+                if(parameterDataMessageType.equals("0x77"))
                 {
                     inSubPacketIndex++;
-                    subPacketBytes.add(packetBytes.get(inSubPacketIndex));
+                    subPacketBytes.add(messageBytes.get(inSubPacketIndex));
                 }
 
                 inSubPacketIndex++; //Status Byte
-                subPacketBytes.add(packetBytes.get(inSubPacketIndex));
-
+                subPacketBytes.add(messageBytes.get(inSubPacketIndex));
 
                 inSubPacketIndex++; //Add a value byte
-                String addedByte = packetBytes.get(inSubPacketIndex);
+                String addedByte = messageBytes.get(inSubPacketIndex);
                 subPacketBytes.add(addedByte);
                 int maxRemainingValueBytes = 4;
                 while(maxRemainingValueBytes > 0 && !addedByte.equals("0x00"))
                 {
                     inSubPacketIndex++; //Add a value byte
-                    addedByte = packetBytes.get(inSubPacketIndex);
+                    addedByte = messageBytes.get(inSubPacketIndex);
                     subPacketBytes.add(addedByte);
                     maxRemainingValueBytes--;
                 }
 
-                ParameterSubPacket subPacket = parseSingleParameterSubPacket(subPacketBytes, subPacketType);
-                packet.addSubPacket(subPacket);
+                if(hasTimeStamp)
+                {
+                    //TODO: Ignored timestamp for now
+                    inSubPacketIndex += 5; //Skip 5 of the timestamp bytes
+                }
+
+                ParameterSubPacket subPacket = parseSingleParameterSubPacket(subPacketBytes, parameterDataMessageType);
+                parameterResponse.addSubPacketParameter(subPacket);
             }
 
             nextSubPacketLengthByteIndex =  nextSubPacketLengthByteIndex + lengthOfSubPacket;
 
         }
-        return packet;
+        return parameterResponse;
     }
 
     public static void parse(File inputFile, File outputFile) throws IOException {
@@ -108,17 +116,17 @@ public class Parser {
                 {
                     String requestTimeStr = line.split(", ")[0];
                     //Read subsequent lines until empty line or end of file
-                    ArrayList<String> packetCodes = new ArrayList<>();
+                    ArrayList<String> messageBytes = new ArrayList<>();
                     line = bufferedReader.readLine();
                     lineNumber++;
                     while(line != null && !line.isEmpty())
                     {
-                        packetCodes.addAll(Arrays.asList(line.split(", ")));
+                        messageBytes.addAll(Arrays.asList(line.split(", ")));
                         line = bufferedReader.readLine();
                         lineNumber++;
                     }
 
-                    ParameterPacket packet = parseSinglePacket(packetCodes, requestTimeStr);
+                    ParameterResponse packet = parseSingleParameterResponse(messageBytes, requestTimeStr);
                     if(packet != null) {
                         if(!headerWritten)
                         {

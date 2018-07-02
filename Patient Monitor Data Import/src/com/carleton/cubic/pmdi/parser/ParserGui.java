@@ -67,13 +67,13 @@ public class ParserGui {
                     Parser.parse(inputFile, outputFile);
                     JOptionPane.showMessageDialog(frame, "Parsing Complete. \n Output file stored at: " + outputFile.getAbsolutePath());
 
-                } catch (java.io.IOException ioException) {
+                } catch (Exception exception) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
-                    ioException.printStackTrace(pw);
+                    exception.printStackTrace(pw);
                     String sStackTrace = sw.toString();
                     JOptionPane.showMessageDialog(frame, "Parsing Error: \n" + sStackTrace);
-                    ioException.printStackTrace();
+                    exception.printStackTrace();
 
                 }
                 finally {

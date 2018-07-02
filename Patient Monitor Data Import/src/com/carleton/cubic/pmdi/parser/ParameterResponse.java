@@ -3,7 +3,7 @@ package com.carleton.cubic.pmdi.parser;
 
 import java.util.*;
 
-public class ParameterPacket {
+public class ParameterResponse {
 
     private static final Map<String,String> parameterIdLabelMap = createIdLabelMap();
 
@@ -22,13 +22,13 @@ public class ParameterPacket {
     private ArrayList<ParameterSubPacket> subPackets;
     private String requestTime;
 
-    public ParameterPacket()
+    public ParameterResponse()
     {
         parameterLabelValueMap = new HashMap<>();
         subPackets = new ArrayList<>();
     }
 
-    public void addSubPacket(ParameterSubPacket subPacket)
+    public void addSubPacketParameter(ParameterSubPacket subPacket)
     {
         subPackets.add(subPacket);
         String parameterLabel = parameterIdLabelMap.get(subPacket.getCode());

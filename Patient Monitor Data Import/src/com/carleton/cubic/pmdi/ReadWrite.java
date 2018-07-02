@@ -21,9 +21,6 @@ public class ReadWrite implements SerialPortEventListener {
 	private static List<String> portIdList = new ArrayList<String>();
 	private ArrayList<Byte> buf = new ArrayList<>();
 
-	static byte [] msg1 = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x50, (byte) 0xF7};
-	static byte [] msg2 = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x56, (byte) 0xFD};
-	static byte [] msg3 = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x57, (byte) 0xFE};
 	static byte [] msg4 = new byte [] {0x00, (byte) 0xA5, 0x02, 0x00, 0x77, (byte) 0x1E};
 
 
@@ -32,13 +29,11 @@ public class ReadWrite implements SerialPortEventListener {
 	public static void main(String[] args) {
 
 		ReadWrite reader = new ReadWrite();
-		//reader.avialableSerialPorts(portIdList);
 		reader.openPort("COM3");
-		//filename = createTextFile().getPath(); //-> included in write methods
 		reader.clearAllList();
 		reader.writeMessage(msg4, 20);
 		reader.closePort();
-	}//end main
+	}
 
 	public ReadWrite(){
 	}
@@ -57,13 +52,6 @@ public class ReadWrite implements SerialPortEventListener {
 			}//end if
 		}//end while
 	}
-
-	//to know available serial port, type 'mode' in the command line or from device manager in contol panel
-	//example: portNumber = COM12
-	//	public ReadWrite(String portNumber) {
-	//		openPort(portNumber);
-	//		setupPort();
-	//	}
 
 	String portUserName = "Patient Monitor App";
 
@@ -159,6 +147,7 @@ public class ReadWrite implements SerialPortEventListener {
 	public void clearShortCopy() {
 		shortCopy = "";
 	}
+
 	public String loopMessage(byte[] msg){
 		filename = createTextFile().getPath();
 		String readData;
@@ -182,11 +171,14 @@ public class ReadWrite implements SerialPortEventListener {
 			} catch (IOException e) {
 				IOexception = true;//System.out.println(e);
 			}
+
+
 			try{
 				TimeUnit.SECONDS.sleep(1);
 			}catch (InterruptedException e) {
 				//closePort();
 				e.printStackTrace();}
+
 
 			if(!buf.isEmpty()){
 				readData = dumpData(buf);
