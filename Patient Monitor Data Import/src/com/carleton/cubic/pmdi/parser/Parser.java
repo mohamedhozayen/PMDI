@@ -35,6 +35,10 @@ public class Parser {
 
     public static ParameterResponse parseSingleParameterResponse(List<String> messageBytes, String requestTimeStr) {
 
+        if(messageBytes.size() < 3)
+        {
+            return null; // Ignore bad messages that are saved during interruptions
+        }
 
         int packetLength = Integer.decode(messageBytes.get(2) + messageBytes.get(1).substring(2));
         if(packetLength != messageBytes.size() - 3) // Length excludes sync byte and the length bytes
@@ -140,7 +144,7 @@ public class Parser {
                         bufferedWriter.write(valuesLine + System.lineSeparator());
                     }
                     else {
-                        System.out.println("Warning: Skipped bad packet at line number: " + lineNumber);
+                        System.out.println("Warning: Skipped bad message at line number: " + lineNumber);
                     }
                 }
                 line = bufferedReader.readLine();
