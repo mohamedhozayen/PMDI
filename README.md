@@ -27,17 +27,21 @@ parsed and the parsed data is saved in a a folder called Parsed Data
 
 ## Development Requirements
 
-Install the latest version of [IntelliJ IDEA Community](https://www.jetbrains.com/idea/download/#section=windows) 
+1 - Install the latest version of [IntelliJ IDEA Community](https://www.jetbrains.com/idea/download/#section=windows) 
 
+2 - Install 32-bit [Java SE Development Kit](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+
+3 - Download [RXTX native library for serial ports](http://rxtx.qbang.org/wiki/index.php/Download)
+*NOTE the RXTX librararies are provided for 32 bit JDK only, if using 64 bit JDK then download binaries from [here] (http://fizzed.com/oss/rxtx-for-java)*
 
 ## Runtime Requirments: 
-
-1 - Install [Java SE Development Kit](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 	
-2 - Download [RXTX native library for serial ports](http://rxtx.qbang.org/wiki/index.php/Download) 
+1 - Download [RXTX native library for serial ports](http://rxtx.qbang.org/wiki/index.php/Download) 
 
-3 - Unzip the RXTX download and copy the native library files "rxtxParallel.dll" and "rxtxSerial.dll" to the the path `JDK_INSTALL_PATH/jre/bin`. JDK_INSTALL_PATH should look like `C:\Program Files (x86)\Java\jdk1.8.0_60\jre\bin` depending on the JDK update version.
+2 - Unzip the RXTX download and copy the native library files "rxtxParallel.dll" and "rxtxSerial.dll" to the the path `JDK_INSTALL_PATH/jre/bin`. JDK_INSTALL_PATH should look like `C:\Program Files (x86)\Java\jdk1.8.0_60\jre\bin` depending on the JDK update version.
 
 ## Building the Application
 
-Import the project "Patient Monitor Data Import" in Intellij. For testing during development run the file "Gui.java". **IMPORTANT** : Make sure to check the box `Include dependencies with "Provided" scope` under `Run --> Edit Configurations`
+1 - In IntelliJ, click File --> Open --> and select the folder "Patient Monitor Data Import" 
+
+2 - For testing during development run the file "Gui.java". **IMPORTANT** : Make sure to check the box `Include dependencies with "Provided" scope` under `Run --> Edit Configurations`
