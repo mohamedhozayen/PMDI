@@ -429,6 +429,7 @@ public class ReadWrite implements SerialPortEventListener {
 						PLsCtr = 0;
 						SpO2Fnd = false;
 						PLsFnd = false;
+						RRFnd = false;
 						//String h = String.format("0x%02X", b);
 						//LocalDateTime now = LocalDateTime.now();
 						//System.out.print(System.currentTimeMillis() + " ");
@@ -446,7 +447,7 @@ public class ReadWrite implements SerialPortEventListener {
 					//RR
 					if(b == (byte)0x60 || RRCtr != 0){
 						if(RRFnd == false){
-							if(SpO2Ctr < 6){
+							if(RRCtr < 6){
 								String temp = String.format("0x%02X", b).replaceAll("0x", "");
 								//System.out.println(temp);
 								RR.add(temp);
