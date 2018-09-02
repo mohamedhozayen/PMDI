@@ -427,6 +427,7 @@ public class ReadWrite implements SerialPortEventListener {
 						byteCtr = 0;
 						SpO2Ctr = 0;
 						PLsCtr = 0;
+						RRCtr = 0;
 						SpO2Fnd = false;
 						PLsFnd = false;
 						RRFnd = false;
