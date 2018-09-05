@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Patient Monitor Data Import.iml" filepath="$PROJECT_DIR$/.idea/Patient Monitor Data Import.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pmdi.iml" filepath="$PROJECT_DIR$/pmdi.iml" />
     </modules>
   </component>
 </project>
