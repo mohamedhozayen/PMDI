@@ -25,10 +25,6 @@ and date the reading started. This Data folder will be created in the same direc
 4. Use ParserPMDI to parse the hexadecimal file after importing is done. Simply select the file that need to be
 parsed and the parsed data is saved in a a folder called Parsed Data
 
-## Development Requirements
-
-Install the latest version of [IntelliJ IDEA Community](https://www.jetbrains.com/idea/download/#section=windows) 
-
 
 ## Runtime Requirments: 
 
@@ -37,6 +33,14 @@ Install the latest version of [IntelliJ IDEA Community](https://www.jetbrains.co
 2 - Download [RXTX native library for serial ports](http://rxtx.qbang.org/wiki/index.php/Download) 
 
 3 - Unzip the RXTX download and copy the native library files "rxtxParallel.dll" and "rxtxSerial.dll" to the the path `JDK_INSTALL_PATH/jre/bin`. JDK_INSTALL_PATH should look like `C:\Program Files (x86)\Java\jdk1.8.0_60\jre\bin` depending on the JDK update version.
+
+## Running the Application
+
+After ensuring runtime requirements are met, connect the patient monitor to the computer prior to launching PMDI_Pro. PMDI_Pro is within the folder "PMDI Software" along with ParserPMDI.
+
+## Development Requirements
+
+Install the latest version of [IntelliJ IDEA Community](https://www.jetbrains.com/idea/download/#section=windows) 
 
 ## Building the Application
 
