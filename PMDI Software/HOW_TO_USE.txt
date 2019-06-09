@@ -9,7 +9,7 @@ Dock Station number(patient monitor reside on): 5206110
 	- Any dock station that has X3 is acceptable
 
 BEFORE RUN
-1. 	Make sure application's specifications are met from README (also found at the end of this file)
+1. 	Make sure application's specifications are met from README
 2. 	If there are more than one version of Java on your PC and
 	it is confused to which one to use and not running, easiest way is to 
 	uninstall all Java versions and reinstall the required version
@@ -38,20 +38,5 @@ AT RUN
 		- simply right click on an empty space and go to view and select "Details"	
 4. At the end of a recording session, click on "Stop Recording"
 	- Open the csv file in Data folder and check the date and time of the first recordings
-	and the last date and time of the last recording at the end of the csv file
-
-	
-
-	
-=======================================================================================
-App specifications: 
-1- Install Java SE Development Kit 8 Update 131 32 bit:
-	http://www.filepuma.com/download/java_development_kit_32bit_8.0.1310.11-14919/
-	
-2- comm.jar, win32com.dll, javax.comm.properties:
-comm.jar is placed in C:\Program Files (x86)\Java\jre1.8.0_131\lib\ext
-javax.comm.properties is placed in C:\Program Files (x86)\Java\jre1.8.0_131\lib
-win32com.dll is placed in C:\Program Files (x86)\Java\jre1.8.0_131\bin
-It should be already in REQUIREMENTS if not:
-	https://drive.google.com/drive/folders/0BzPNFkK3y-4oQTlucDFEb2tJc0k	
+	and the last date and time of the last recording at the end of the csv file	
 	
