@@ -11,9 +11,9 @@ Supervisors:
 Systems and Computer Engineering Department
 Carleton Univeristy
 	
-	The PMDI form part of a larger research project that is investigating the novel use of the pressure-sensitive mat (PSM) technology for continuous patient monitoring in the neonatal intensive care unit (NICU). To evaluate the potential for PSM for respiration and patient movement detection, gold standard physiologic data are required. This research is being conducted at the Children’s Hospital of Eastern Ontario (CHEO), Ottawa, Canada, where physiologic data are acquired using the Infinity Delta patient monitor series (Dräger Medical, Germany).
+The PMDI form part of a larger research project that is investigating the novel use of the pressure-sensitive mat (PSM) technology for continuous patient monitoring in the neonatal intensive care unit (NICU). To evaluate the potential for PSM for respiration and patient movement detection, gold standard physiologic data are required. This research is being conducted at the Children’s Hospital of Eastern Ontario (CHEO), Ottawa, Canada, where physiologic data are acquired using the Infinity Delta patient monitor series (Dräger Medical, Germany).
 
-	In conclusion, the PMDI is a free open source system enabling researchers for real-time data acquisition and analysis from patient monitors. To help expand the PMDI system, we encourage collaborators to share extended features and adding them online. Thus, it is appreciated sharing your modification to the PMDI repository online via pulling requests or other means.
+In conclusion, the PMDI is a free open source system enabling researchers for real-time data acquisition and analysis from patient monitors. To help expand the PMDI system, we encourage collaborators to share extended features and adding them online. Thus, it is appreciated sharing your modification to the PMDI repository online via pulling requests or other means.
 
 Project: Pressure Senstive Mats Studies in the NICU at CHEO
 -----------------------------------------------------------------------------------------------------------------
