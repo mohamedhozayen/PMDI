@@ -3,19 +3,21 @@ PMDI is a software that imports patients data off a patient monitor type Draeger
 
 Author: 
 <br />
-	Mohamed Hozayen, MohamedHozayen@cmail.carleton.ca
+&nbsp;&nbsp;Mohamed Hozayen, MohamedHozayen@cmail.carleton.ca
 <br />
 Contiributors:
 <br />
-	Amente Bekele, amentebullo@cmail.carleton.ca
+&nbsp;&nbsp;Amente Bekele, amentebullo@cmail.carleton.ca
 <br />
 Supervisors: 
 <br />
-	Dr. James Green, Dr. Shermeen Nizami
+&nbsp;&nbsp;Dr. James Green, Dr. Shermeen Nizami
 <br />
 
-Systems and Computer Engineering Department
+Department of Systems and Computer Engineering 
+<br />
 Carleton Univeristy
+<br />
 	
 The PMDI form part of a larger research project that is investigating the novel use of the pressure-sensitive mat (PSM) technology for continuous patient monitoring in the neonatal intensive care unit (NICU). To evaluate the potential for PSM for respiration and patient movement detection, gold standard physiologic data are required. This research is being conducted at the Children’s Hospital of Eastern Ontario (CHEO), Ottawa, Canada, where physiologic data are acquired using the Infinity Delta patient monitor series (Dräger Medical, Germany).
 
