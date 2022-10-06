@@ -11,7 +11,7 @@ Contiributors:
 <br />
 Supervisors: 
 <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dr. James Green, Dr. Shermeen Nizami
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Professor James Green, Dr. Shermeen Nizami
 <br />
 
 Department of Systems and Computer Engineering 
